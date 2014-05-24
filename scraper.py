@@ -111,7 +111,7 @@ def main():
     print "Data stored. Displaying tables in database"
     print scraperwiki.sqlite.show_tables() 
     print "Displaying info from table data"
-    print scraperwiki.sqlite.execute("select top * from data limit 50") 
+    print scraperwiki.sqlite.execute("select * from data limit 50") 
 
 # _____________________ START MAIN PROGRAM _____________________
 
