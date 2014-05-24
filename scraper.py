@@ -7,11 +7,13 @@ DATABASE_NAME = 'data.sqlite'
 os.environ['SCRAPERWIKI_DATABASE_NAME'] = DATABASE_NAME
 
 FIS_URL = "http://data.fis-ski.com/alpine-skiing/results.html"
-for link, raceinfo in race_link_results(FIS_URL):
-    raceResults = get_race_results(link)
-    for result in raceResults:
-        complete_athlete_result_line = dict(result.items() + raceinfo.items())
-        print complete_athlete_result_line
+
+def extract_save_results_from(link):
+    for link, raceinfo in race_link_results(FIS_URL):
+        raceResults = get_race_results(link)
+        for result in raceResults:
+            complete_athlete_result_line = dict(result.items() + raceinfo.items())
+            print complete_athlete_result_line
 
 # generator of FIS race links
 def race_link_results(url):
@@ -83,13 +85,9 @@ def extract_data_for_this_athlete(row):
 def get_plain_element_from_column_number(element,colNumber):
     return element.cssselect("td")[colNumber].text_content()        
 
-
-
-
-
-
-
-
+# _____________________ START MAIN PROGRAM _____________________
+extract_save_results_from(FIS_URL)
+# ______________________________________________________________
 
 
 
