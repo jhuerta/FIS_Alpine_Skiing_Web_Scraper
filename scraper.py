@@ -3,17 +3,21 @@ import scraperwiki
 import lxml.html
 from pprint import pprint
 
-DATABASE_NAME = 'data.sqlite'
-os.environ['SCRAPERWIKI_DATABASE_NAME'] = DATABASE_NAME
-
-FIS_URL = "http://data.fis-ski.com/alpine-skiing/results.html"
-
-def extract_save_results_from(link):
-    for link, raceinfo in race_link_results(FIS_URL):
+def get_list_of_new_records(urlLink):
+    newRaceResultsRecords = []
+    for link, raceinfo in race_link_results(urlLink):
+        save_print(raceinfo['date'] + " " + raceinfo['place'] + " " + raceinfo['discipline'] + " " + raceinfo['codex'])
         raceResults = get_race_results(link)
-        for result in raceResults:
-            complete_athlete_result_line = dict(result.items() + raceinfo.items())
-            print complete_athlete_result_line
+        for raceResult in raceResults:
+            complete_athlete_result_line = merge_two_dictionaries(raceResult,raceinfo)
+            newRaceResultsRecords.append(complete_athlete_result_line)
+    return newRaceResultsRecords
+
+def insert_update_to_database(record, table):
+    scraperwiki.sqlite.save(unique_keys=['name','date','discipline'], data=record, table_name=table)
+
+def merge_two_dictionaries(dictA, dictB):
+    return dict(dictA.items() + dictB.items())
 
 # generator of FIS race links
 def race_link_results(url):
@@ -85,24 +89,51 @@ def extract_data_for_this_athlete(row):
 def get_plain_element_from_column_number(element,colNumber):
     return element.cssselect("td")[colNumber].text_content()        
 
+def test_how_scraperwiki_save_works():
+    record_A = { 'name': "Juan3",
+                'lastname': "Huerta5",
+                'age': 36}
+    record_B = { 'name': "Juan3",
+                'lastname': "Huerta6",
+                'age': 36}
+    records = []
+    records.append(record_A)
+    records.append(record_B)
+    scraperwiki.sqlite.save(unique_keys=['name','lastname'], data=records)
+    print scraperwiki.sqlite.execute("select * from swdata") 
+
+def main():
+    FIS_URL = "http://data.fis-ski.com/alpine-skiing/results.html"
+    print "Pulling data out of the page ..."
+    newRaceResultsRecords = get_list_of_new_records(FIS_URL)
+    print "Saving data in the database ..."
+    insert_update_to_database(newRaceResultsRecords,"data")
+    print "Data stored. Displaying tables in database"
+    print scraperwiki.sqlite.show_tables() 
+    print "Displaying info from table data"
+    print scraperwiki.sqlite.execute("select * from data") 
+
 # _____________________ START MAIN PROGRAM _____________________
-extract_save_results_from(FIS_URL)
+
+#test_how_scraperwiki_save_works()
+main()
+
 # ______________________________________________________________
 
 
+# _____________________ HELPERS AND INFORMATION _____________________
 
+#DATABASE_NAME = 'dataTest.sqlite'
+#os.environ['SCRAPERWIKI_DATABASE_NAME'] = DATABASE_NAME
+#save_print(complete_athlete_result_line)
+#for raceResult in raceResults:
+    #print raceResult
+#print raceinfo
 
-
-
-        #save_print(complete_athlete_result_line)
-    #for raceResult in raceResults:
-        #print raceResult
-    #print raceinfo
-
-    # html = scraperwiki.scrape(link)
-    # root = lxml.html.fromstring(html)
-    # result_table = root.cssselect("table.fisfootable")[0]
-    # print raceinfo['date']
+# html = scraperwiki.scrape(link)
+# root = lxml.html.fromstring(html)
+# result_table = root.cssselect("table.fisfootable")[0]
+# print raceinfo['date']
 
 # # Write out to the sqlite database using scraperwiki library
 # data = {"name": "susan", "occupation": "software developer"}
@@ -110,3 +141,6 @@ extract_save_results_from(FIS_URL)
 # 
 # An arbitrary query against the database
 # pprint(scraperwiki.sql.select("* from data where 'name'='susan'"))
+
+# ______________________________________________________________
+
