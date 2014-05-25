@@ -10,7 +10,10 @@ from pprint import pprint
 def get_list_of_new_records(urlLink):
     newRaceResultsRecords = []
     for link, raceinfo in race_link_results(urlLink):
-        save_print(raceinfo['date'] + " " + raceinfo['place'] + " " + raceinfo['discipline'] + " " + raceinfo['codex'])
+        
+        # if you want to see how many races are being scraped, uncomment this
+        #save_print(raceinfo['date'] + " " + raceinfo['place'] + " " + raceinfo['discipline'] + " " + raceinfo['codex'])
+        
         raceResults = get_race_results(link)
         for raceResult in raceResults:
             complete_athlete_result_line = merge_two_dictionaries(raceResult,raceinfo)
@@ -109,19 +112,22 @@ def test_how_scraperwiki_save_works():
 
 def main():
     FIS_URL = "http://data.fis-ski.com/alpine-skiing/results.html"
-    print "Pulling data out of the page ..."
+    #print "Pulling data out of the page ..."
     newRaceResultsRecords = get_list_of_new_records(FIS_URL)
-    print "Saving data in the database ..."
+    #print "Saving data in the database ..."
     insert_update_to_database(newRaceResultsRecords,"data")
-    print "Data stored. Displaying tables in database"
-    print scraperwiki.sqlite.show_tables() 
-    print "Displaying info from table data"
-    print scraperwiki.sqlite.execute("select * from data limit 50") 
+    #print "Data stored. Displaying tables in database"
+    #print scraperwiki.sqlite.show_tables() 
+    #print "Displaying info from table data"
+    #print scraperwiki.sqlite.execute("select * from data limit 50") 
 
 # _____________________ START MAIN PROGRAM _____________________
 
-test_how_scraperwiki_save_works()
-#main()
+#test_how_scraperwiki_save_works()
+main()
+print scraperwiki.sqlite.execute("select count(name) from data")['data']
+
+
 # ______________________________________________________________
 
 
