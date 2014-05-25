@@ -1,4 +1,8 @@
 import os
+#THIS LINES SHOULD BE BEFORE IMPORTING SCRAPERWIKI!!!!
+DATABASE_NAME = 'data.sqlite'
+os.environ['SCRAPERWIKI_DATABASE_NAME'] = DATABASE_NAME
+
 import scraperwiki
 import lxml.html
 from pprint import pprint
@@ -99,8 +103,9 @@ def test_how_scraperwiki_save_works():
     records = []
     records.append(record_A)
     records.append(record_B)
-    scraperwiki.sqlite.save(unique_keys=['name','lastname'], data=records)
-    print scraperwiki.sqlite.execute("select * from swdata") 
+    scraperwiki.sqlite.save(unique_keys=['name','lastname'], data=records, table_name="theTable")
+    print os.environ.get('SCRAPERWIKI_DATABASE_NAME')
+    print scraperwiki.sqlite.execute("select * from theTable") 
 
 def main():
     FIS_URL = "http://data.fis-ski.com/alpine-skiing/results.html"
@@ -115,16 +120,13 @@ def main():
 
 # _____________________ START MAIN PROGRAM _____________________
 
-#test_how_scraperwiki_save_works()
-main()
-
+test_how_scraperwiki_save_works()
+#main()
 # ______________________________________________________________
 
 
 # _____________________ HELPERS AND INFORMATION _____________________
 
-#DATABASE_NAME = 'dataTest.sqlite'
-#os.environ['SCRAPERWIKI_DATABASE_NAME'] = DATABASE_NAME
 #save_print(complete_athlete_result_line)
 #for raceResult in raceResults:
     #print raceResult
